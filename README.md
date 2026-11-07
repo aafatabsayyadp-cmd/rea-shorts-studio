@@ -1,15 +1,17 @@
 # REA Shorts Studio
 
-A browser-based workspace for turning local video clips into vertical short-form videos.
+A browser-based editor for turning local videos into vertical short-form clips.
 
-## Current MVP
+## Features
 
-- Import a local video (MP4, MOV, WebM and other browser-supported formats)
-- Preview the clip in a 9:16 frame
-- Set trim start and end points
-- Add a simple editable caption overlay
-- Export a vertical 1080 × 1920 video in a browser-supported recording format
-- Keep source footage local in the browser; no upload or backend is used
+- Import a local video and preview it in a 9:16 frame
+- Trim start and end points
+- Generate timed subtitles with Whisper running locally in a browser worker
+- Edit each caption's text and timing
+- Preview timed captions and burn them into the exported video
+- Download subtitles as an SRT file
+- Export a vertical 1080 × 1920 video using browser recording support
+- No paid transcription API and no video upload
 
 ## Run locally
 
@@ -20,7 +22,7 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite.
+Open the local URL printed by Vite. The first transcription downloads the Whisper tiny model from Hugging Face and caches it in the browser. Later uses can reuse the cached model. Internet is required for the initial model download; the video audio is captured and processed locally.
 
 ## Build
 
@@ -29,8 +31,10 @@ npm run build
 npm run preview
 ```
 
-## Notes
+## Current limitations
 
-- Export format depends on browser MediaRecorder support. Chrome and Edge are recommended for the first test.
-- MP4 output is used when the browser supports H.264/AAC recording; otherwise the app downloads WebM.
-- This is an early MVP. Automatic transcription, word-level captions, multi-clip timelines, and advanced reframing are not included yet.
+- Audio capture plays the video once in real time before transcription starts.
+- The first model download is approximately 75 MB; transcription speed depends on the computer.
+- Subtitle timing is segment-level, not word-by-word karaoke timing.
+- Cobalt URL importing is not connected yet. It needs a separately hosted Cobalt API; the public service is not a dependable free third-party endpoint.
+- Export format depends on browser MediaRecorder support. Chrome or Edge are recommended; MP4 is used when supported, otherwise WebM.

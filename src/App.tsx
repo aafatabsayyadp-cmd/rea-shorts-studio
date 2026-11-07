@@ -11,6 +11,7 @@ function formatTime(value: number) {
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isExportingRef = useRef(false);
   const [file, setFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState("");
   const [duration, setDuration] = useState(0);
@@ -169,6 +170,7 @@ export default function App() {
         else video.addEventListener("seeked", () => resolve(), { once: true });
       });
 
+      isExportingRef.current = true;
       recorder.start(250);
       await video.play();
       let animation = 0;
@@ -187,6 +189,7 @@ export default function App() {
       render();
 
       const blob = await finished;
+      isExportingRef.current = false;
       canvasStream.getTracks().forEach((track) => track.stop());
       const extension = mimeType.includes("mp4") ? "mp4" : "webm";
       const downloadUrl = URL.createObjectURL(blob);
@@ -200,6 +203,7 @@ export default function App() {
       setProgress(100);
       setPlaying(false);
     } catch (error) {
+      isExportingRef.current = false;
       setExportState("error");
       setExportMessage(error instanceof Error ? error.message : "Export failed. Please try again.");
     }
@@ -229,7 +233,7 @@ export default function App() {
                 <div className="phone-frame">
                   <video ref={videoRef} src={videoUrl} onLoadedMetadata={onMetadata} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onTimeUpdate={() => {
                     const v = videoRef.current;
-                    if (v && v.currentTime >= trimEnd && !v.paused) { v.pause(); v.currentTime = trimStart; }
+                    if (!isExportingRef.current && v && v.currentTime >= trimEnd && !v.paused) { v.pause(); v.currentTime = trimStart; }
                   }} />
                   <div className="preview-caption">{caption || "Your caption appears here"}</div>
                   <button className="play-overlay" onClick={togglePlayback} aria-label={playing ? "Pause preview" : "Play preview"}>{playing ? "Ⅱ" : "▶"}</button>

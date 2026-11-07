@@ -14,6 +14,10 @@ A browser-based editor for turning local videos into vertical short-form clips, 
 - Export a vertical 1080 × 1920 video using browser recording support
 - Video importing and editing run on your PC; no REA cloud upload is used
 
+## Release testing
+
+See [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) for the Windows smoke-test procedure and the current release gates. A passing automated build does not replace testing local video import, audio, transcription, and export on the target PC.
+
 ## Run the editor
 
 Requirements: Node.js 18+

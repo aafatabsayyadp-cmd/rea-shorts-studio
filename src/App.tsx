@@ -366,7 +366,7 @@ export default function App() {
       <section className="main-panel">
         <header className="topbar">
           <div><div className="eyebrow">VIDEO WORKSPACE</div><h1>Shorts editor</h1></div>
-          <div className="top-actions"><span className="autosave"><i /> Saved locally</span><button className="export-button" onClick={exportVideo} disabled={!file || exportState === "rendering"}>{exportState === "rendering" ? "Exporting…" : "Export short"} <span>↗</span></button></div>
+          <div className="top-actions"><span className="autosave"><i /> Local session</span><button className="export-button" onClick={exportVideo} disabled={!file || exportState === "rendering"}>{exportState === "rendering" ? "Exporting…" : "Export short"} <span>↗</span></button></div>
         </header>
 
         <div className="editor-layout">
@@ -379,7 +379,7 @@ export default function App() {
                 <div className="preview-caption">{activeCaption || (captions.length ? "" : "Your caption appears here")}</div>
                 <button className="play-overlay" onClick={togglePlayback} aria-label={playing ? "Pause preview" : "Play preview"}>{playing ? "Ⅱ" : "▶"}</button>
               </div> : <button className="upload-card" onClick={() => fileInputRef.current?.click()}>
-                <div className="upload-icon">↑</div><strong>Drop a video to get started</strong><span>or click to browse files</span><small>MP4 · MOV · WEBM · Local files only</small>
+                <div className="upload-icon">↑</div><strong>Choose a video to get started</strong><span>Browse a video from your device</span><small>MP4 · MOV · WEBM · Local files only</small>
               </button>}
             </div>
             <div className="preview-footer"><span>{file ? file.name : "No video selected"}</span><span>{file ? `${formatTime(duration)} total` : "1080 × 1920 output"}</span></div>

@@ -42,6 +42,19 @@ export default function App() {
   const [transcriptionMessage, setTranscriptionMessage] = useState("");
   const [transcriptionProgress, setTranscriptionProgress] = useState(0);
   const [language, setLanguage] = useState("auto");
+  const [importUrl, setImportUrl] = useState("");
+  const [importerStatus, setImporterStatus] = useState<"checking" | "online" | "offline">("checking");
+  const [importBusy, setImportBusy] = useState(false);
+  const [importMessage, setImportMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    fetch("http://127.0.0.1:8765/api/health", { signal: AbortSignal.timeout(2500) })
+      .then((response) => { if (!response.ok) throw new Error("offline"); return response.json(); })
+      .then(() => { if (active) setImporterStatus("online"); })
+      .catch(() => { if (active) setImporterStatus("offline"); });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -69,6 +82,38 @@ export default function App() {
     loadFile(event.target.files?.[0]);
     event.target.value = "";
   };
+  const importFromUrl = async () => {
+    const value = importUrl.trim();
+    if (!value) { setImportMessage("Paste a video URL first."); return; }
+    let parsed: URL;
+    try { parsed = new URL(value); } catch { setImportMessage("Enter a valid video URL."); return; }
+    if (!["http:", "https:"].includes(parsed.protocol)) { setImportMessage("Only HTTP and HTTPS links are supported."); return; }
+    setImportBusy(true);
+    setImportMessage("Connecting to your local importer…");
+    try {
+      const response = await fetch("http://127.0.0.1:8765/api/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: parsed.toString() }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || "Import failed.");
+      setImportMessage("Downloading video to this PC…");
+      const fileResponse = await fetch(`http://127.0.0.1:8765${result.download_url}`);
+      if (!fileResponse.ok) throw new Error("The importer could not return the downloaded file.");
+      const blob = await fileResponse.blob();
+      const extension = String(result.filename).split(".").pop()?.toLowerCase();
+      const mime = extension === "webm" ? "video/webm" : extension === "mov" ? "video/quicktime" : "video/mp4";
+      const imported = new File([blob], result.filename || "imported-video.mp4", { type: mime });
+      loadFile(imported);
+      setImportMessage(`Imported “${result.title}” to this browser. You can now edit it.`);
+    } catch (error) {
+      setImportMessage(error instanceof Error ? error.message : "Could not connect to the local importer.");
+    } finally {
+      setImportBusy(false);
+    }
+  };
+
 
   const onMetadata = () => {
     const video = videoRef.current;
@@ -347,6 +392,16 @@ export default function App() {
               <input ref={fileInputRef} className="hidden-input" type="file" accept="video/*" onChange={onFileChange} />
               <button className="file-picker" onClick={() => fileInputRef.current?.click()}>{file ? "Replace video" : "Choose video"} <span>＋</span></button>
               {file && <div className="file-name"><span className="file-dot" />{file.name}</div>}
+            </div>
+
+            <div className="control-card importer-card">
+              <div className="control-title"><span className="control-icon">⇩</span><div><strong>Import from a link</strong><small>yt-dlp local engine · many supported sites</small></div></div>
+              <div className={`importer-status ${importerStatus}`}><span />{importerStatus === "online" ? "Local importer connected" : importerStatus === "checking" ? "Checking local importer…" : "Local importer not running"}</div>
+              <input className="import-url" type="url" placeholder="Paste a video URL…" value={importUrl} onChange={(e) => setImportUrl(e.target.value)} disabled={importBusy} />
+              <button className="file-picker import-button" onClick={importFromUrl} disabled={importBusy || importerStatus !== "online"}>{importBusy ? "Importing…" : "Import video"} <span>↓</span></button>
+              {importMessage && <p className="import-message">{importMessage}</p>}
+              {importerStatus === "offline" && <p className="micro-note">Start <b>local-importer/run-windows.bat</b> from the project folder, then refresh this page. Keep its terminal window open.</p>}
+              <p className="micro-note">Downloads run on your PC. Import only videos you own or are authorized to download; platform rules still apply.</p>
             </div>
 
             <div className="control-card">

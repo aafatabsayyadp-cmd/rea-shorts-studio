@@ -107,3 +107,17 @@ textarea:focus{border-color:#b9f36b}
 .caption-times button{margin-left:auto;border:1px solid #3a3743;border-radius:5px;background:#24222b;color:#b9f36b;padding:5px 8px;font-size:10px}
 .caption-row textarea{min-height:48px;resize:vertical;font-size:10px}
 @media(max-width:520px){.subtitle-options{align-items:flex-start;flex-direction:column}.subtitle-options select{max-width:100%;width:100%}}
+
+
+.importer-card{border-color:#3c4930}
+.importer-status{display:flex;align-items:center;gap:8px;font-size:9px;margin:-5px 0 12px;color:#aaa7b2}
+.importer-status span{width:7px;height:7px;border-radius:50%;background:#777}
+.importer-status.online{color:#b9f36b}
+.importer-status.online span{background:#b9f36b;box-shadow:0 0 10px #b9f36b}
+.importer-status.offline{color:#ffb0a8}
+.importer-status.offline span{background:#ff8b7f}
+.import-url{width:100%;background:#121116;border:1px solid #383540;border-radius:8px;color:#f4f2f7;padding:11px;font-size:10px;outline:none;margin-bottom:9px}
+.import-url:focus{border-color:#b9f36b}
+.import-button{border-color:#596b3f;background:#293020;color:#dff8bd}
+.import-button span{float:right;color:#b9f36b;font-size:15px}
+.import-message{font-size:10px;line-height:1.5;color:#d9d6df;margin:10px 0 0;overflow-wrap:anywhere}
